@@ -32,18 +32,41 @@ for key, value in music.items():
         # keys go from 0-999 and have a "metadata" and a "[]" at the end, these are different ignore them
         permlinks.append(music[key]['permlink'])
 
-print(permlinks) # list of all the permlinks we will be scraping pdfs from
+# print(permlinks) # list of all the permlinks we will be scraping pdfs from
 
 # relevant html:
 # <a rel="nofollow" class="external text" href="https://imslp.org/wiki/Special:ImageFromIndex/693320/hfpn"> == $0
+# use the div class "we_file_download plainlinks"
 
-def get_pdf():
-    url = permlinks[0]
+def get_pdf(i):
+    url = permlinks[i]
     page = requests.get(url)
 
     soup = BeautifulSoup(page.content, "html.parser")
     # print(soup.text)
 
-get_pdf()
+    # results = soup.find_all("div", class_ = "we_file_download plainlinks")
+    results = soup.find(id="tabScore1")
+    # print(results.prettify())
+    # print(results)
 
+    # for a in results.find_all('a', href=True):
+       # print("Found the URL:", a['href'])
+
+    pdfurl = ""
+
+    if type(results) is not None:
+        links = results.find_all('a', href=True)
+        pdfurl = links[0]['href']
+        # print(pdfurl) # index 0 is the one we want
+
+    response = requests.get(pdfurl)
+    print(pdfurl)
+    print(response.content)
+
+    pdfname = "pdf" + str(i) + ".pdf"
+    with open(pdfname, 'wb') as f:
+        f.write(response.content)
+
+get_pdf(0)
 
