@@ -2,9 +2,8 @@ import requests
 import json
 from bs4 import BeautifulSoup
 
-
-
 permlinks = []
+permlinks_no_ascii = []
 
 def get_links(i):
     bad_query_message = "response code was not 200, something went 2 shit"
@@ -25,7 +24,6 @@ def get_links(i):
             if key != 'metadata' and key != '':
                 # keys go from 0-999 and have a "metadata" and a "[]" at the end, these are different ignore them
                 permlinks.append(music[key]['permlink'])
-                # print(f"adding permlink within index {i}")
     # keys of inner dicts are id, type, parent, intvals, permlink
     print(f"appended permlinks for index {i}")
     return "succeeded"
@@ -39,15 +37,12 @@ def main():
         print(f"finished getting music for index {i}")
         i += 1000 # each api call only returns 1000 entries at a time
 
-        if result == "failed" or i > 2000:
+        if result == "failed" or i > 100000: # have i > n here as an upper bound
             failed = True
 
-
-    # print(permlinks)
-    with open("permlinks.txt", 'w+', encoding='utf8') as f:
+    with open("permlinks.txt", 'w+', encoding='utf-8') as f:
         for p in permlinks:
             str_to_append = p + "\n"
-            s = str_to_append
             f.write(str_to_append)
 
     if len(permlinks) != len(set(permlinks)):
@@ -59,7 +54,7 @@ def main():
     print(a)
 
 def get_permlinks(): # so other files in the program can read the links
-    with open("permlinks60000.txt", 'r') as file:
+    with open("permlinks100000.txt", 'r', encoding='utf-8') as file:
         p = [l for l in file]
     return p
 

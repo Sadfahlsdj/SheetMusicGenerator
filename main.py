@@ -3,9 +3,8 @@ import json
 from bs4 import BeautifulSoup
 from LinkGenerator import get_permlinks
 
-linksTest = get_permlinks()
-print(linksTest)
-# replace the start value with something else to access a different entry
+
+# replace the start value with something else to access a different entry, skip 1000 at a time
 # retformat can be pretty, json, php, or wddx
 api_url = ("https://imslp.org/imslpscripts/API.ISCR.php?account=worklist/disclaimer=accepted/"
            "sort=id/type=2/start=60000/retformat=json")
@@ -13,6 +12,7 @@ api_url = ("https://imslp.org/imslpscripts/API.ISCR.php?account=worklist/disclai
 bad_query_message = "response code was not 200, something went 2 shit"
 
 permlinks = []
+permlinks_non_ascii = []
 
 def get_music():
     url = api_url
