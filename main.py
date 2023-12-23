@@ -1,6 +1,9 @@
 import requests
 import json
 from bs4 import BeautifulSoup
+from selenium import webdriver
+import csv
+import os
 
 # replace the start value with something else to access a different entry
 # retformat can be pretty, json, php, or wddx
@@ -39,34 +42,38 @@ for key, value in music.items():
 # use the div class "we_file_download plainlinks"
 
 def get_pdf(i):
-    url = permlinks[i]
+    url = permlinks[i] # should run on each permlink, i is the index
     page = requests.get(url)
 
     soup = BeautifulSoup(page.content, "html.parser")
-    # print(soup.text)
 
-    # results = soup.find_all("div", class_ = "we_file_download plainlinks")
-    results = soup.find(id="tabScore1")
-    # print(results.prettify())
-    # print(results)
+    results = soup.find(id="tabScore1") # id that is closest to the link I want
 
-    # for a in results.find_all('a', href=True):
-       # print("Found the URL:", a['href'])
+    pdfurl = "" # declaration to change later
 
-    pdfurl = ""
-
-    if type(results) is not None:
-        links = results.find_all('a', href=True)
+    if type(results) is not None: # does this even work?
+        links = results.find_all('a', href=True) # <a signifies links
         pdfurl = links[0]['href']
-        # print(pdfurl) # index 0 is the one we want
+        # index 0 is the one we want, just happens to be the first href link in this id
+        # takes us to disclaimer page
 
-    response = requests.get(pdfurl)
-    print(pdfurl)
-    print(response.content)
+    # note: links have disclaimer pages, need to take steps to get around them
+    pdfpage = requests.get(pdfurl)
+    pdfsoup = BeautifulSoup(pdfpage.content, "html.parser")
+    pdfresults = pdfsoup.find(id="wiki-body")
 
-    pdfname = "pdf" + str(i) + ".pdf"
-    with open(pdfname, 'wb') as f:
-        f.write(response.content)
+    if type(pdfresults) is not None:
+        links = pdfresults.find_all('a', href=True)
+        final_link = "https://imslp.org" + links[0]['href']
+        # first link on the disclaimer page is the pdf link, need to add https to make it work
 
-get_pdf(0)
+    response = requests.get(final_link)
+    pdfname = "pdf" + str(i) + ".pdf" # naming convention
+    pdf = open(pdfname, 'wb')
+    pdf.write(response.content) # writing to pdf on my own machine
+    pdf.close()
+    print(f"finished writing {pdfname}")
+
+for i in range(len(permlinks)):
+    get_pdf(i)
 
