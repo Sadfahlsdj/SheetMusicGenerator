@@ -1,14 +1,14 @@
 import requests
 import json
 from bs4 import BeautifulSoup
-from selenium import webdriver
-import csv
-import os
+from LinkGenerator import get_permlinks
 
+linksTest = get_permlinks()
+print(linksTest)
 # replace the start value with something else to access a different entry
 # retformat can be pretty, json, php, or wddx
 api_url = ("https://imslp.org/imslpscripts/API.ISCR.php?account=worklist/disclaimer=accepted/"
-           "sort=id/type=2/start=0/retformat=json")
+           "sort=id/type=2/start=60000/retformat=json")
 
 bad_query_message = "response code was not 200, something went 2 shit"
 
