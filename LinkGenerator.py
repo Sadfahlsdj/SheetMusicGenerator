@@ -8,6 +8,8 @@ permlinks_no_ascii = []
 def get_links(i):
     bad_query_message = "response code was not 200, something went 2 shit"
 
+    # replace the start value with something else to access a different entry, skip 1000 at a time
+    # retformat can be pretty, json, php, or wddx
     url = ("https://imslp.org/imslpscripts/API.ISCR.php?account=worklist/disclaimer=accepted/"
            "sort=id/type=2/start=" + str(i) + "/retformat=json")
     response = requests.get(url)

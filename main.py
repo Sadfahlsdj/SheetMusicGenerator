@@ -3,50 +3,23 @@ import json
 from bs4 import BeautifulSoup
 from LinkGenerator import get_permlinks
 
-
-# replace the start value with something else to access a different entry, skip 1000 at a time
-# retformat can be pretty, json, php, or wddx
-api_url = ("https://imslp.org/imslpscripts/API.ISCR.php?account=worklist/disclaimer=accepted/"
-           "sort=id/type=2/start=60000/retformat=json")
-
-bad_query_message = "response code was not 200, something went 2 shit"
-
-permlinks = []
-permlinks_non_ascii = []
-
-def get_music():
-    url = api_url
-    response = requests.get(url)
-
-    if response.status_code == 200: # the good response code
-        return json.loads(response.content.decode('utf-8'))
-        # return response.content.decode('utf-8')
-    else:
-        return bad_query_message
-
-music = get_music()
-
-if music != bad_query_message:
-    print("query successful")
-
-# keys of inner dicts are id, type, parent, intvals, permlink
-for key, value in music.items():
-    if key != 'metadata' and key != '':
-        # keys go from 0-999 and have a "metadata" and a "[]" at the end, these are different ignore them
-        permlinks.append(music[key]['permlink'])
-
-# print(permlinks) # list of all the permlinks we will be scraping pdfs from
+permlinks = get_permlinks()
 
 # relevant html:
 # <a rel="nofollow" class="external text" href="https://imslp.org/wiki/Special:ImageFromIndex/693320/hfpn"> == $0
 # use the div class "we_file_download plainlinks"
 
+"""
+TODO:
+It appears that after 10(?) downloads the website forces a 15 second wait period
+Need to get around this
+"""
+
 def get_pdf(i):
-    url = permlinks[i] # should run on each permlink, i is the index
+    url = permlinks[i].strip() # should run on each permlink, i is the index
     page = requests.get(url)
 
     soup = BeautifulSoup(page.content, "html.parser")
-
     results = soup.find(id="tabScore1") # id that is closest to the link I want
 
     pdfurl = "" # declaration to change later
