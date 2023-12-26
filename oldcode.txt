@@ -1,0 +1,11 @@
+# proxy generator that generates mostly proxies that don't work:
+def get_proxies():
+    url = ("https://api.proxyscrape.com/v2/?request=displayproxies"
+           "&protocol=http&timeout=500&country=all&ssl=all&anonymity=all")
+    # documentation: https://docs.proxyscrape.com/
+
+    response = requests.get(url)
+    if response.status_code == 200:
+        proxies = response.content.decode('utf-8')
+    returnme = proxies.split("\n")
+    return [i.strip() for i in returnme]

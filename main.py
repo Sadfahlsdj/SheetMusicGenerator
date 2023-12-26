@@ -26,13 +26,24 @@ def get_random_user_agent(user_agent_list):
 
 user_agent_list = get_user_agent_list()
 
+"""
+notes: proxyscrape sucks ass, it's fast(lol) but nearly all the proxies are broken
+can load from proxies.txt for very very very slow process
 
+try this later: https://www.reddit.com/r/FREEMEDIAHECKYEAH/wiki/storage/#wiki_proxy_lists
+"""
 def get_proxies():
-    with open("proxies.txt", 'r', encoding='utf-8') as file:
-        p = [l.strip() for l in file]
-    return p
+    url = ("https://raw.githubusercontent.com/proxy4parsing/proxy-list/main/http.txt")
+    # documentation: https://github.com/proxy4parsing
+    # with this one, disregard the first element because it has some weird attachments
 
-proxies = get_proxies()
+    response = requests.get(url)
+
+    proxies = str(response.content).split('\\n')
+
+    return [p.strip() for p in proxies]
+
+proxies = get_proxies()[1:]
 """header = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/601.3.9 (KHTML, like Gecko) Version/9.0.2 Safari/601.3.9'
     }"""
@@ -59,7 +70,7 @@ def get_pdf(i):
     global add_to_proxy_index
     global user_agent_list
 
-    proxyIndex = (i + 50 + add_to_proxy_index) % (len(proxies) - 1)
+    proxyIndex = (i + add_to_proxy_index) % (len(proxies) - 1)
     proxy = proxies[proxyIndex]
 
     user_agent = get_random_user_agent(user_agent_list)

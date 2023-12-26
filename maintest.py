@@ -14,7 +14,6 @@ TODO:
 It appears that after 10(?) downloads the website forces a 15 second wait period
 Need to get around this
 """
-
 def get_pdf(i):
     url = permlinks[i].strip() # should run on each permlink, i is the index
     page = requests.get(url)
