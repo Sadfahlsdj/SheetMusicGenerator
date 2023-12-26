@@ -1,6 +1,5 @@
 import requests
 from random import *
-from fp.fp import FreeProxy
 import json
 from bs4 import BeautifulSoup
 from LinkGenerator import get_permlinks
@@ -60,10 +59,11 @@ def get_pdf(i):
     global add_to_proxy_index
     global user_agent_list
 
-    proxyIndex = int(i / 10) + 550 + add_to_proxy_index
+    proxyIndex = (i + 50 + add_to_proxy_index) % (len(proxies) - 1)
     proxy = proxies[proxyIndex]
 
-    header = {'User-Agent': get_random_user_agent(user_agent_list)}
+    user_agent = get_random_user_agent(user_agent_list)
+    header = {'User-Agent': user_agent}
 
     url = permlinks[i].strip() # should run on each permlink, i is the index
     try:
@@ -89,15 +89,20 @@ def get_pdf(i):
         if type(pdfresults) is not None:
             links = pdfresults.find_all('a', href=True)
             final_link = "https://imslp.org" + links[0]['href']
+            with open("pdflinks.txt", 'w+', encoding='utf-8') as f:
+                f.write(final_link + "\n")
+            print(f"wrote {final_link}")
             # first link on the disclaimer page is the pdf link, need to add https to make it work
 
-        response = requests.get(pdfurl,
+        """
+        # code block for writing link contents to pdf, will save for later
+        response = requests.get(final_link,
                                proxies={"http": proxy.strip(), "https": proxy.strip()}, headers=header, verify=False)
         pdfname = "pdf" + str(i) + ".pdf"  # naming convention
-        pdf = open(pdfname, 'wb')
-        pdf.write(response.content)  # writing to pdf on my own machine
-        pdf.close()
+        with open(pdfname, 'wb') as pdf:
+            pdf.write(response.content)  # writing to pdf on my own machine
         print(f"finished writing {pdfname}")
+        """
     except:
         print(f"something went wrong with the proxy {proxy}")
         add_to_proxy_index += 1
