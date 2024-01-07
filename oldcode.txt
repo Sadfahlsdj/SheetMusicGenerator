@@ -9,3 +9,16 @@ def get_proxies():
         proxies = response.content.decode('utf-8')
     returnme = proxies.split("\n")
     return [i.strip() for i in returnme]
+
+# very slow proxy list
+def get_proxies():
+    url = ("https://raw.githubusercontent.com/proxy4parsing/proxy-list/main/http.txt")
+    # documentation: https://github.com/proxy4parsing
+    # with this one, disregard the first element because it has some weird attachments
+
+    response = requests.get(url)
+
+    proxies = str(response.content).split('\\n')
+
+    return [p.strip() for p in proxies]
+

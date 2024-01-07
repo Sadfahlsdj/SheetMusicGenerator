@@ -32,18 +32,17 @@ can load from proxies.txt for very very very slow process
 
 try this later: https://www.reddit.com/r/FREEMEDIAHECKYEAH/wiki/storage/#wiki_proxy_lists
 """
+
+# proxy checking documentation: https://github.com/TheSpeedX/socker
+# proxieschecked.txt will have proxies that theoretically work
 def get_proxies():
-    url = ("https://raw.githubusercontent.com/proxy4parsing/proxy-list/main/http.txt")
-    # documentation: https://github.com/proxy4parsing
-    # with this one, disregard the first element because it has some weird attachments
+    # proxies.txt generated with this:
+    # curl https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/http.txt -o http.txt
+    with open('proxieschecked.txt') as file:
+        proxies = [line.strip() for line in file]
+    return proxies
 
-    response = requests.get(url)
-
-    proxies = str(response.content).split('\\n')
-
-    return [p.strip() for p in proxies]
-
-proxies = get_proxies()[1:]
+proxies = get_proxies()
 """header = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/601.3.9 (KHTML, like Gecko) Version/9.0.2 Safari/601.3.9'
     }"""
@@ -70,7 +69,7 @@ def get_pdf(i):
     global add_to_proxy_index
     global user_agent_list
 
-    proxyIndex = (i + add_to_proxy_index) % (len(proxies) - 1)
+    proxyIndex = (i + 10 + add_to_proxy_index) % (len(proxies) - 1)
     proxy = proxies[proxyIndex]
 
     user_agent = get_random_user_agent(user_agent_list)
@@ -116,7 +115,6 @@ def get_pdf(i):
         """
     except:
         print(f"something went wrong with the proxy {proxy}")
-        add_to_proxy_index += 1
 
 
 
