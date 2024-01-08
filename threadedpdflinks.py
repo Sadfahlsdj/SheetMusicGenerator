@@ -10,7 +10,7 @@ permlinks = get_permlinks()
 
 class Test:
     def __init__(self):
-        self.urls = permlinks[10:20]
+        self.urls = [p.strip() for p in permlinks[10:20]]
 
     def exception(self, request, exception):
         print("Problem: {}: {}".format(request.url, exception))
@@ -20,7 +20,12 @@ class Test:
         soup = [BeautifulSoup(res.text, 'html.parser') for res in results]
 
         results2 = [s.find(id="tabScore1") for s in soup]
-        links = [r.find_all('a', href=True) for r in results2]
+        links = []
+        for r in results2:
+            try:
+                links.append([r.find_all('a', href=True) for r in results2])
+            except:
+                print(f"something went wrong, the statement that r is none is: {r is None}")
         pdfurls = [l[0]['href'] for l in links]
 
         pdfresults = grequests.map((grequests.get(u) for u in pdfurls), exception_handler=self.exception, size=10)
