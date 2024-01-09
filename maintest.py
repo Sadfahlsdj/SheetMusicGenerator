@@ -48,5 +48,4 @@ def get_pdf(i):
     pdf.close()
     print(f"finished writing {pdfname}")
 
-for i in range(len(permlinks)):
-    get_pdf(i)
+get_pdf(0)
