@@ -6,7 +6,14 @@ import json
 from bs4 import BeautifulSoup
 import warnings
 from LinkGenerator import get_permlinks
+import os
+import threading
 
+def write_file(pdfname, response):
+    with open(os.path.join('./pdfs', pdfname), 'wb') as pdf:  # ./ is for relative filepath
+        # os.set_blocking(pdf.fileno(), False) this doesn't work
+        pdf.write(response.content)  # writing to pdf on my own machine
+    print(f"finished writing {pdfname}")
 class Test:
     def __init__(self, start, stop, permlinks):
         self.start = start
@@ -90,16 +97,14 @@ class Test:
                 for final_link in final_links:
                     response = requests.get(final_link)
                     pdfname = "pdf" + str(start + final_links.index(final_link)) + ".pdf"  # naming convention
-                    pdf = open(pdfname, 'wb')
-                    pdf.write(response.content)  # writing to pdf on my own machine
-                    pdf.close()
-                    print(f"finished writing {pdfname}")
+                    write_file(pdfname, response)
+
             except:
                 print("something went wrong with the printing process")
 
         except:
             print(f"catch-all error in case i forgot something tbh")
-            return False
+            return True # don't know whats gone wrong, just force to next index
         return True
 
 def get_proxies():
@@ -115,18 +120,20 @@ def main():
     warnings.filterwarnings("ignore") # LIVING ON A PRAYER
     proxies = get_proxies()
 
-    i = 400
+    i = 360
     proxyi = 80
     proxy = proxies[proxyi].strip()
 
     while i < len(permlinks):
+        threads = 10 # higher than 10 gets banned
+        cooldown = 20 # lower than 20 gets banned
         print(f"trying with starting i as {i}")
-        test = Test(i, i + 10, permlinks)  # probably capped to 8 threads because any more gets a proxy banned
+        test = Test(i, i + threads, permlinks)
         succeeded = test.a(proxy)  # returns true if it worked, false if it didn't
         if succeeded:
-            i += 10
-            print("succeeded, forcing 20 sec timeout")
-            sleep(20) # 15 was too little, 20 works
+            i += threads
+            print(f"succeeded, forcing {cooldown} sec timeout")
+            sleep(cooldown)
 
 if __name__ == "__main__":
     main()
