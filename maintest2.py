@@ -24,7 +24,7 @@ class Test:
     def exception(self, request, exception):
         print("Problem: {}: {}".format(request.url, exception))
 
-    def a(self, proxy):
+    def a(self):
         start = self.start
         t = self.threads
         done = False
@@ -85,15 +85,18 @@ class Test:
                 try:
                     links = p.find_all('a', href=True)
                     final_link = "https://imslp.org" + links[0]['href']
-                    with open("pdflinks2.txt", 'a+', encoding='utf-8') as f:
-                        f.write(final_link + "\n")
-                    print(f"wrote {final_link}")
+
                     final_links.append(final_link)
+                    index = start + final_links.index(final_link)
+                    with open("pdflinks.txt", 'a+', encoding='utf-8') as f:
+                        f.write(str(index) + ": " + final_link + "\n")
+                    print(f"wrote {final_link}")
+
                 except:
                     print(f"something went wrong with the third step, the statement that p is none is: {p is None}")
                     return False
 
-            try:
+            """try:
                 for final_link in final_links:
                     response = requests.get(final_link)
                     pdfname = "pdf" + str(start + final_links.index(final_link)) + ".pdf"  # naming convention
@@ -101,10 +104,11 @@ class Test:
 
             except:
                 print("something went wrong with the printing process")
+                """
 
         except:
             print(f"catch-all error in case i forgot something tbh")
-            return True # don't know whats gone wrong, just force to next index
+            return False
         return True
 
 def get_proxies():
@@ -116,11 +120,11 @@ def get_proxies():
 
 def main():
     permlinks = get_permlinks()
-    open('pdflinks2.txt', 'w').close()  # i use append so clear file on each iteration
+    open('pdflinks_sample.txt', 'w').close()  # i use append so clear file on each iteration
     warnings.filterwarnings("ignore") # LIVING ON A PRAYER
     proxies = get_proxies()
 
-    i = 360
+    i = 5000
     proxyi = 80
     proxy = proxies[proxyi].strip()
 
@@ -129,11 +133,14 @@ def main():
         cooldown = 20 # lower than 20 gets banned
         print(f"trying with starting i as {i}")
         test = Test(i, i + threads, permlinks)
-        succeeded = test.a(proxy)  # returns true if it worked, false if it didn't
+        succeeded = test.a()  # returns true if it worked, false if it didn't
+
+        i += threads
         if succeeded:
-            i += threads
             print(f"succeeded, forcing {cooldown} sec timeout")
-            sleep(cooldown)
+        else:
+            print(f"something failed, moving on to the next bunch after {cooldown} seconds")
+        sleep(cooldown)
 
 if __name__ == "__main__":
     main()

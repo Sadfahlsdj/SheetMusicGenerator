@@ -75,7 +75,7 @@ class Test:
                 try:
                     links = p.find_all('a', href=True)
                     final_link = "https://imslp.org" + links[0]['href']
-                    with open("pdflinks2.txt", 'a+', encoding='utf-8') as f:
+                    with open("pdflinks_sample.txt", 'a+', encoding='utf-8') as f:
                         f.write(final_link + "\n")
                     print(f"wrote {final_link}")
                     return True
@@ -94,7 +94,7 @@ def get_proxies():
 
 def main():
     permlinks = get_permlinks()
-    open('pdflinks2.txt', 'w').close()  # i use append so clear file on each iteration
+    open('pdflinks_sample.txt', 'w').close()  # i use append so clear file on each iteration
     warnings.filterwarnings("ignore") # LIVING ON A PRAYER
     proxies = get_proxies()
 
