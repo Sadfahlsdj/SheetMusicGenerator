@@ -30,6 +30,7 @@ class Test:
         done = False
         tryCount = 0
         try:
+            """ # next code block is for proxies
             while not done and tryCount < 3:
                 try:
                     rs = (grequests.get(u) for u in self.urls)
@@ -43,7 +44,10 @@ class Test:
                     tryCount += 1
                     if tryCount == 3:
                         print("reached 3 tries, terminating")
-                        return False
+                        return False"""
+            rs = (grequests.get(u) for u in self.urls)
+            results = grequests.map(rs, size=t, exception_handler=self.exception)
+            soup = [BeautifulSoup(res.text, 'html.parser') for res in results]
         except:
             print(f"something went wrong with the second step, assume that soup is none")
             return False
@@ -65,8 +69,10 @@ class Test:
             done = False
             tryCount = 0
             print(f"reached step 3")
-            while not done and tryCount < 3:
+            """# next code block is for proxies
+                while not done and tryCount < 3:
                 try:
+                    next code block is for proxies
                     rs2 = (grequests.get(u) for u in pdfurls)
                     pdfresults = grequests.map(rs2, size=t, exception_handler=self.exception)
                     pdfsoup = [BeautifulSoup(p.content, "html.parser") for p in pdfresults]
@@ -78,7 +84,11 @@ class Test:
                     tryCount += 1
                     if tryCount == 3:
                         print("reached 3 tries, terminating")
-                        return False
+                        return False"""
+            rs2 = (grequests.get(u) for u in pdfurls)
+            pdfresults = grequests.map(rs2, size=t, exception_handler=self.exception)
+            pdfsoup = [BeautifulSoup(p.content, "html.parser") for p in pdfresults]
+            pdfresponses = [p.find(id="wiki-body") for p in pdfsoup]
 
             final_links = []
             for p in pdfresponses:
@@ -120,11 +130,11 @@ def get_proxies():
 
 def main():
     permlinks = get_permlinks()
-    open('pdflinks_sample.txt', 'w').close()  # i use append so clear file on each iteration
+    open('pdflinks.txt', 'w').close()  # i use append so clear file on each iteration
     warnings.filterwarnings("ignore") # LIVING ON A PRAYER
     proxies = get_proxies()
 
-    i = 5000
+    i = 9720
     proxyi = 80
     proxy = proxies[proxyi].strip()
 

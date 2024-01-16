@@ -7,7 +7,7 @@ def main():
     warnings.filterwarnings("ignore") # LIVING ON A PRAYER
 
 
-    i = 5000
+    i = 0
 
     while i < len(permlinks):
         threads = 10 # higher than 10 gets banned
