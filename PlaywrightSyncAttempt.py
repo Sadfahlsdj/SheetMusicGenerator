@@ -19,6 +19,8 @@ def run(playwright: Playwright, link) -> None:
     page.get_by_role("link", name="I accept this disclaimer,")
     pdf_final_url = page.url + "\n"
 
+    print(page.content())
+
     with open("pdf_final_links.txt", 'a+') as pdf:  # ./ is for relative filepath
         # os.set_blocking(pdf.fileno(), False) this doesn't work
         pdf.write(pdf_final_url)  # writing to pdf on my own machine
