@@ -134,7 +134,7 @@ def main():
     warnings.filterwarnings("ignore") # LIVING ON A PRAYER
     proxies = get_proxies()
 
-    i = 9720
+    i = 9850
     proxyi = 80
     proxy = proxies[proxyi].strip()
 

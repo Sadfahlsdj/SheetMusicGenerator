@@ -1,48 +1,50 @@
 from playwright.sync_api import Playwright, sync_playwright, expect
-import os
 from bs4 import BeautifulSoup
 import requests
 
+def get_pdflinks(): # so other files in the program can read the links
+    with open("pdflinks_saved.txt", 'r', encoding='utf-8') as file:
+        p = [l.split(" ")[1].strip() for l in file]
+    return p
 
-def run(playwright: Playwright) -> None:
-    browser = playwright.chromium.launch_persistent_context(user_dir, headless=False)
-    # above line makes the browser launch in non incognito
-    page = browser.new_page()
-    # request_context = context.request
-    page.goto("https://imslp.org/wiki/Special:IMSLPImageHandler/43455")
-    page.get_by_role("link", name="I accept this disclaimer,")
-    print("step 1")
-    # page.get_by_text("Accept all & visit the site").click()
-    # print("step 2")
-    # print(page.content())
-    pdfresults = page.content()
-    pdfsoup = BeautifulSoup(pdfresults, "html.parser")
-    pdfresponses = pdfsoup.find(id="wiki-body")
+def run(i, playwright: Playwright) -> None:
+    pdflinks = get_pdflinks()
+    browser = playwright.chromium.launch(headless=True)
+    context = browser.new_context()
+    page = context.new_page()
+    page.goto(pdflinks[i])
+    page.get_by_text("Accept all & visit the site").click()
+    # page.get_by_text("I accept this disclaimer").click()
+    url = page.url
+    print(url)
 
-    links = pdfresponses.find_all('a', href=True)
-    print(links)
-    final_link = "https://imslp.org" + links[0]['href']
 
-    print(final_link)
+    # print(span)
+    # page.pause()
+
+    locator = page.get_by_role("link", name="Click here to continue your")
+    locator.hover()
+    print("found link")
+    result = page.content()
+    # print(result)
+    soup = BeautifulSoup(result, 'html.parser')
+    span = soup.find(id='wiki-body')
+    links = span.find_all('a', href=True)
+    final_link = links[0]['href']
 
     response = requests.get(final_link)
+    pdf_name = "testpdf" + str(i) + ".pdf"
 
-    with open("testpdf.pdf", "wb") as p:
+    with open(pdf_name, "wb") as p:
         p.write(response.content)
-    # page.get_by_role("link", name="Click here to continue your").click()
-    print("step 2")
-
-
+    print(f"pdf number {i} was written")
     page.close()
 
     # ---------------------
-    # context.close()
+    context.close()
     browser.close()
 
-user_dir = '/tmp/playwright'
-
-if not os.path.exists(user_dir):
-  os.makedirs(user_dir)
 
 with sync_playwright() as playwright:
-    run(playwright)
+    for i in range(10):
+        run(i + 16, playwright)
