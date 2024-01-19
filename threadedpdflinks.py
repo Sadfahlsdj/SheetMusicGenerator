@@ -88,7 +88,7 @@ class Test:
 def get_proxies():
     # proxies.txt generated with this:
     # curl https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/http.txt -o http.txt
-    with open('proxieschecked.txt') as file:
+    with open('proxies.txt') as file:
         proxies = [line.strip() for line in file]
     return proxies
 

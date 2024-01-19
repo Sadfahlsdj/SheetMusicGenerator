@@ -31,7 +31,7 @@ def get_final_link(index, link):
                 f.write(index + ": " + final_link + "\n")
             print(f"wrote {final_link}, it is a Petrucci/EU server link")
 
-            command2 = f'wget -O pdf{index}.pdf -P ./pdfs -q \"{final_link}\"'
+            command2 = f'wget -O ./pdfs/pdf{index}.pdf -q \"{final_link}\"'
             os.system(command2)
             print(f"saved index {index} to pdf")
 
@@ -45,12 +45,12 @@ def get_final_link(index, link):
                 f.write(link_to_write + "\n")
             print(f"wrote {link_to_write}")
 
-            command2 = f"wget -O pdf{index}.pdf -P ./pdfs -q \"{final_link}\""
+            command2 = f'wget -O ./pdfs/pdf{index}.pdf -q \"{final_link}\"'
             os.system(command2)
             print(f"saved index {index} to pdf")
     except: # this SHOULD trigger if the link goes directly to pdf, or if something weird happens
         print("something went wrong, likely because this link resolves directly to pdf")
-        command_to_use = f'wget -O pdf{index}.pdf -P ./pdfs -q \"{link}\"'
+        command_to_use = f'wget -O ./pdfs/pdf{index}.pdf -q \"{link}\"'
         os.system(command_to_use)
         # print(command_to_use)
         print(f"saved index {index} to pdf")
@@ -64,7 +64,7 @@ def main():
     for i in range(len(pdf_links)):
         index, link = input_parser(pdf_links[i])
         get_final_link(index, link)
-        time.sleep(1)
+        time.sleep(1) # SET TO 2 SECONDS FOR NEU SERVERS, THEY ARE FASTER SO NEED MORE TIMEOUT
     """index, link = input_parser(pdf_links[122]) # use this & next line to test individual ones
     get_final_link(index, link)"""
     # print(f"{index} {link}")
