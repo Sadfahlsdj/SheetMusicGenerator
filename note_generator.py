@@ -75,7 +75,7 @@ def probability(trigram):
 # print(probability(trigrams[tuple(['A3', 'C4'])]))
 
 def generate_music(trigrams, length, start1='C4', start2='F4'):
-    stream1 = music21.stream.Stream()
+    stream1 = music21.stream.base.Part()
     sixteenth = music21.duration.Duration(1)
     # 1 is quarter, this controls duration of all notes in music
 
@@ -105,8 +105,10 @@ def generate_music(trigrams, length, start1='C4', start2='F4'):
 
     return stream1
 
-def generate_chord(trigrams, length):
-    stream1 = music21.stream.Stream()
+def generate_chord(trigrams, length, list_of_roots):
+    stream1 = music21.stream.base.Part()
+    duration = music21.duration.Duration(1)
+    # the stream.base.Part can be added to a stream.base.Score for 2h music
     notes_1, notes_2, notes_3 = tuple(['C4', 'G4']), tuple(['E4', 'C5']), tuple(['G4', 'E5'])
 
     for i in range(length):
@@ -115,10 +117,15 @@ def generate_chord(trigrams, length):
         while True:
             key1, key2, key3 = probability(t1), probability(t2), probability(t3)
             pitch1, pitch2, pitch3 = key1[:len(key1) - 1], key2[:len(key2) - 1], key3[:len(key3) - 1]
-            c = music21.chord.Chord([pitch1, pitch2, pitch3]).semiClosedPosition()
+            c = music21.chord.Chord([pitch1, pitch2, pitch3], duration=duration).closedPosition()
 
-            c_notes = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
-            if pitch1 not in c_notes or pitch2 not in c_notes or pitch3 not in c_notes:
+            c_major_notes = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+            bflat_major_notes = ['A', 'B-', 'C', 'D', 'E-', 'F', 'G']
+            csharp_major_notes = ['A#', 'C', 'C#', 'D#', 'F', 'F#', 'G#']
+
+            current_key = csharp_major_notes
+            # if any of these conditions trigger, it will regenerate
+            if pitch1 not in current_key or pitch2 not in current_key or pitch3 not in current_key or not c.isMajorTriad:
                 continue # still locking to one key at once
             midis = [p.midi for p in c.pitches]
             midis.sort()
@@ -129,29 +136,49 @@ def generate_chord(trigrams, length):
                 if len(midis) == 2:
                     if abs(midis[1] - midis[0]) > 2:
                         stream1.append(c)
+                        list_of_roots.append(c.root())
                         break
             else:
                 if abs(midis[1] - midis[0]) > 2 or abs(midis[2] - midis[1]) > 2:
                     stream1.append(c)
+                    list_of_roots.append(c.root())
                     break
 
     return stream1
 
-"""top, mid, bottom = (generate_music(trigrams, 50, 'C4', 'G4'),
-                    generate_music(trigrams, 50, 'E4', 'C5'),
-                    generate_music(trigrams, 50, 'G4', 'E5'))
-final_stream = music21.stream.Stream()
-for i in range(len(top)):
-    a, b, c = top[i], mid[i], bottom[i]
-    final_stream.append(music21.chord.Chord([a, b, c]).semiClosedPosition())"""
+def generate_accompaniment(list_of_roots):
+    stream2 = music21.stream.base.Part()
+    duration = music21.duration.Duration(0.25)
+    for l in list_of_roots:
+        # print(l)
+        n1 = music21.note.Note(l, duration=duration)
+        # below are hardcoded halfstep lengths for major triads for accompaniment
+        n2, n3 = (music21.note.Note(n1.pitch.midi + 4, duration=duration),
+                  music21.note.Note(n1.pitch.midi + 7, duration=duration))
+        stream2.append(n1)
+        stream2.append(n2)
+        stream2.append(n3)
+        stream2.append(music21.note.Note(n2.pitch, duration=duration))
+    return stream2
+list_of_roots = []
 
-final_stream = generate_chord(trigrams, 50)
+
+right_hand = generate_chord(trigrams, 50, list_of_roots)
+left_hand = generate_accompaniment(list_of_roots)
+
+
+final_stream = music21.stream.base.Score()
+ks = music21.key.KeySignature(7)
+final_stream.insert(0, ks)
+final_stream.append(right_hand)
+final_stream.append(left_hand)
+
 seed = 601
 random.seed = seed
 # a.show()
 final_stream.show()
 filename = './midis/' + str(seed) + '.mid'
 # a.write('midi', filename)
-final_stream.write('midi', filename)
+right_hand.write('midi', filename)
 """a = generate_music(trigrams, 30)
 print(a)"""
