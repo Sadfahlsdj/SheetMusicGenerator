@@ -24,6 +24,7 @@ def extract_notes(music_stream):
             for p in tN.pitches:
                 # print(p)
                 note_list.append(p)
+                # appends chords as arpeggios
         else:
             # print([tN.step, tN.octave, tN.duration.quarterLength])
             # print(tN.pitch)
