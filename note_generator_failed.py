@@ -152,3 +152,4 @@ for p in pitch_list:
     stream1.append(music21.note.Note(p))
 
 stream1.show()
+stream1.write('midi', './midis/failed_experiment.mid')

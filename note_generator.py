@@ -74,36 +74,6 @@ def probability(trigram):
 
 # print(probability(trigrams[tuple(['A3', 'C4'])]))
 
-def generate_music(trigrams, length, start1='C4', start2='F4'):
-    stream1 = music21.stream.base.Part()
-    sixteenth = music21.duration.Duration(1)
-    # 1 is quarter, this controls duration of all notes in music
-
-    keys_input = tuple([start1, start2]) # hardcoded for now, maybe randomize later
-    for k in keys_input:
-        stream1.append(music21.note.Note(k, duration=sixteenth))
-
-    for i in range(length):
-        t = trigrams[keys_input]
-
-        # next section will be hardcoding to force it to follow a key
-        # comment out or delete at will
-        # for base behavior, just leave next_key = probability(t)
-
-        c_notes = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
-        while True:
-            next_key = probability(t)
-            raw_note = next_key[:len(next_key) - 1]
-            prev_note, curr_note = music21.pitch.Pitch(keys_input[1]), music21.pitch.Pitch(next_key)
-            difference = abs(prev_note.midi - curr_note.midi)
-            # 13 pitches in an octave, large jumps sound like ass so i'm banning them
-            if raw_note in c_notes and difference <= 15:
-                break
-
-        stream1.append(music21.note.Note(next_key, duration=sixteenth))
-        keys_input = tuple([keys_input[1], next_key])
-
-    return stream1
 
 def generate_chord(trigrams, length, list_of_roots):
     stream1 = music21.stream.base.Part()
@@ -119,13 +89,9 @@ def generate_chord(trigrams, length, list_of_roots):
             pitch1, pitch2, pitch3 = key1[:len(key1) - 1], key2[:len(key2) - 1], key3[:len(key3) - 1]
             c = music21.chord.Chord([pitch1, pitch2, pitch3], duration=duration).closedPosition()
 
-            c_major_notes = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
-            bflat_major_notes = ['A', 'B-', 'C', 'D', 'E-', 'F', 'G']
-            csharp_major_notes = ['A#', 'C', 'C#', 'D#', 'F', 'F#', 'G#']
-
-            current_key = csharp_major_notes
+            # keys are handled in generate_song
             # if any of these conditions trigger, it will regenerate
-            if pitch1 not in current_key or pitch2 not in current_key or pitch3 not in current_key or not c.isMajorTriad:
+            if not c.isMajorTriad:
                 continue # still locking to one key at once
             midis = [p.midi for p in c.pitches]
             midis.sort()
@@ -149,9 +115,12 @@ def generate_chord(trigrams, length, list_of_roots):
 def generate_accompaniment(list_of_roots):
     stream2 = music21.stream.base.Part()
     duration = music21.duration.Duration(0.25)
+
     for l in list_of_roots:
+        n = music21.note.Note(l, duration=duration)
         # print(l)
-        n1 = music21.note.Note(l, duration=duration)
+        # minus 12 midi pitches moves it down 1 octave
+        n1 = music21.note.Note(n.pitch.midi - 12, duration=duration)
         # below are hardcoded halfstep lengths for major triads for accompaniment
         n2, n3 = (music21.note.Note(n1.pitch.midi + 4, duration=duration),
                   music21.note.Note(n1.pitch.midi + 7, duration=duration))
@@ -160,25 +129,43 @@ def generate_accompaniment(list_of_roots):
         stream2.append(n3)
         stream2.append(music21.note.Note(n2.pitch, duration=duration))
     return stream2
-list_of_roots = []
 
+def generate_song(key, trigrams, length):
+    list_of_roots = []
+    right_hand = generate_chord(trigrams, length, list_of_roots)
+    # generates lh based on rh
+    left_hand = generate_accompaniment(list_of_roots)
 
-right_hand = generate_chord(trigrams, 50, list_of_roots)
-left_hand = generate_accompaniment(list_of_roots)
+    final_stream = music21.stream.base.Score()
+    k = music21.key.Key(key)
+    final_stream.insert(0, k) # key signature
 
+    final_stream.append(right_hand)
+    final_stream.append(left_hand)
 
-final_stream = music21.stream.base.Score()
-ks = music21.key.KeySignature(7)
-final_stream.insert(0, ks)
-final_stream.append(right_hand)
-final_stream.append(left_hand)
+    # force every note to adhere to the key signature
+    for n in final_stream.recurse().notes:
+        if isinstance(n, music21.chord.Chord):
+            for no in n.notes:
+                nStep = no.pitch.step
+                rightAccidental = k.accidentalByStep(nStep)
+                no.pitch.accidental = rightAccidental
+                # need to treat chords separately and iterate through notes in one
+        else:
+            n_step = n.pitch.step
+            right_accidental = k.accidentalByStep(n_step)
+            n.pitch.accidental = right_accidental
 
-seed = 601
-random.seed = seed
-# a.show()
-final_stream.show()
-filename = './midis/' + str(seed) + '.mid'
-# a.write('midi', filename)
-right_hand.write('midi', filename)
-"""a = generate_music(trigrams, 30)
-print(a)"""
+    return final_stream
+
+def main():
+    final_stream = generate_song('D', trigrams, 30)
+    seed = 601
+    random.seed = seed
+    # a.show()
+    final_stream.show()
+    # a.write('midi', filename)
+    final_stream.write('midi', './midis/most_recent_one.mid')
+
+if __name__ == '__main__':
+    main()
