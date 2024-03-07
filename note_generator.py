@@ -233,7 +233,7 @@ def generate_song(key, trigrams, length):
     return final_stream
 
 def main():
-    final_stream = generate_song('E-', trigrams, 30)
+    final_stream = generate_song('F', trigrams, 30)
     seed = 601
     random.seed = seed
     # a.show()
