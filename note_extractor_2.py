@@ -1,18 +1,25 @@
 from music21 import *
+import os
 
-s_chords = converter.parse('./mxls/pdf10013.mvt3.mxl').chordify()
-k = s_chords.analyze('key')
+def extract_chords(stream):
+    chords_list = []
 
-key_raw = str(k).split(' ')[0]
-print(key_raw)
+    s_chords = stream.chordify()
+    k = s_chords.analyze('key')
 
-# print(k)
-s_chords_new = stream.Stream()
+    for c in s_chords.recurse().getElementsByClass(chord.Chord):
+        c_n = c.closedPosition() # force into one octave
+        r = roman.romanNumeralFromChord(c_n, k) # self explanatory
 
-for c in s_chords.recurse().getElementsByClass(chord.Chord):
-    c_n = c.closedPosition()
-    s_chords_new.append(c_n)
-    r = roman.romanNumeralFromChord(c_n, k)
-    print(r.figure)
+        chords_list.append(r.figure) # will append with inversions and accidentals
+        # will try without if this leads to bad data
 
-s_chords_new.show()
+    with open('notes.txt', 'a+') as note_file:
+        for c in chords_list:
+            note_file.write(str(c) + ' ')
+        note_file.write('\n')
+
+for f in os.listdir('./mxls'):
+    s = converter.parse('./mxls/' + f.strip())
+    extract_chords(s)
+
