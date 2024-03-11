@@ -14,12 +14,13 @@ def extract_chords(stream):
         chords_list.append(r.figure) # will append with inversions and accidentals
         # will try without if this leads to bad data
 
-    with open('notes.txt', 'a+') as note_file:
+    print("finished song")
+    with open('chords.txt', 'a+') as note_file:
         for c in chords_list:
             note_file.write(str(c) + ' ')
         note_file.write('\n')
 
-for f in os.listdir('./mxls'):
+for f in os.listdir('./mxls')[:10]:
     s = converter.parse('./mxls/' + f.strip())
     extract_chords(s)
 
