@@ -99,15 +99,13 @@ def generate_chord_rh(key_name, trigrams, length, list_of_roots):
         c1 = trigrams[chord_1]
         while True:
             chord_new = probability(c1)
-            # the last character in the key is the octave measure
             c = music21.roman.RomanNumeral(chord_new, k)
 
-            # keys are handled in generate_song
-            # that will also force major/minor chords depending on key
-            # print(c)
             stream1.append(c)
             previous_chords.append(c)
             break
+
+
 
     for c in stream1:
         # create list_of_roots here instead of having to retype it multiple times above
@@ -155,7 +153,7 @@ def generate_song(key, trigrams, length):
     return final_stream
 
 def main():
-    final_stream = generate_song('B-', trigrams, 30)
+    final_stream = generate_song('D', trigrams, 30)
     final_stream.show()
     final_stream.write('midi', './midis/chord_bases.mid')
 
