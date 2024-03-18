@@ -1,7 +1,9 @@
 from nltk import trigrams
 import json
 
-with open('notes.txt', 'r+') as f:
+with open('chord_bases_1.txt', 'r+') as f:
+    # chord_bases_1 is just progress after one day of parsing
+    # replace this file later
     lines = [l.strip().split(' ') for l in f.readlines()]
 
 trigrams_count = {}
@@ -19,8 +21,8 @@ for line in lines:
                 trigrams_count[key][value] = 1
         else:
             trigrams_count[key] = {value: 1}
-    print(f"finished line f{lines.index(line)}")
+    print(f"finished line {lines.index(line)}")
 
 # print(trigrams_count)
-with open('trigrams.txt', 'w+') as f:
+with open('chord_trigrams.txt', 'w+') as f:
     f.write(str(trigrams_count))
