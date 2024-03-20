@@ -101,17 +101,35 @@ def generate_chord_rh(key_name, trigrams, length, list_of_roots):
             chord_new = probability(c1)
             c = music21.roman.RomanNumeral(chord_new, k)
 
+            if len(previous_chords) > 1:
+                # if a chord appears 2x in a row, make the second one have the next inversion up
+                # from the first one
+                if previous_chords[-1].scaleDegree == correct_chord(c, k).scaleDegree:
+                    # scaleDegree is a bandaid fix because some chords get marked as minor
+                    # despite definitely not being minor
+                    # will need to replace this logic if I ever decide not to lock chords to a key
+                    # because it treats minor/major etc in the same base as the same
+
+                    if previous_chords[-1].inversion() == 0:
+                        chord_inverted = chord_new + "63"
+                    elif previous_chords[-1].inversion() == 1:
+                        chord_inverted = chord_new + "64"
+                    else: # inversions higher than 2nd technically exist but I won't use them
+                        chord_inverted = chord_new + "53"
+                    # disgusting hardcoding because I cannot find an easy way to change a chord's inversion
+
+                    c = music21.roman.RomanNumeral(chord_inverted, k)
+                    print(f"found dupe between {previous_chords[-1]} and {correct_chord(c, k)}")
+
             stream1.append(c)
             previous_chords.append(c)
             break
-
-
 
     for c in stream1:
         # create list_of_roots here instead of having to retype it multiple times above
         # have to append 1 by 1 because it's a function arg
         list_of_roots.append(music21.note.Note(c.root(), duration=c.duration))
-
+        print(c)
     return stream1
 
 def generate_arpeggio_lh(list_of_roots):
@@ -153,7 +171,7 @@ def generate_song(key, trigrams, length):
     return final_stream
 
 def main():
-    final_stream = generate_song('D', trigrams, 30)
+    final_stream = generate_song('E-', trigrams, 30)
     final_stream.show()
     final_stream.write('midi', './midis/chord_bases.mid')
 
