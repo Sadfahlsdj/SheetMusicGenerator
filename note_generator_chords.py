@@ -101,7 +101,7 @@ def generate_chord_rh(key_name, trigrams, length, list_of_roots):
             chord_new = probability(c1)
             c = music21.roman.RomanNumeral(chord_new, k)
 
-            if len(previous_chords) > 1:
+            if len(previous_chords) >= 1:
                 # if a chord appears 2x in a row, make the second one have the next inversion up
                 # from the first one
                 if previous_chords[-1].scaleDegree == correct_chord(c, k).scaleDegree:
@@ -129,7 +129,7 @@ def generate_chord_rh(key_name, trigrams, length, list_of_roots):
         # create list_of_roots here instead of having to retype it multiple times above
         # have to append 1 by 1 because it's a function arg
         list_of_roots.append(music21.note.Note(c.root(), duration=c.duration))
-        print(c)
+        # print(c)
     return stream1
 
 def generate_arpeggio_lh(list_of_roots):
@@ -143,8 +143,10 @@ def generate_arpeggio_lh(list_of_roots):
         # minus 12 midi pitches moves it down 1 octave
         n1 = music21.note.Note(n.pitch.midi - 12, duration=duration)
         # 4 and 7 are halfstep lengths to make the arpeggio
-        n2, n3 = (music21.note.Note(n1.pitch.midi + 4, duration=duration),
-                  music21.note.Note(n1.pitch.midi + 7, duration=duration))
+        #n2, n3 = (music21.note.Note(n1.pitch.midi + 4, duration=duration),
+        #           music21.note.Note(n1.pitch.midi + 7, duration=duration))
+
+        n2, n3 = n1.transpose('M3'), n1.transpose('P5')
 
         stream2.append(n1)
         stream2.append(n2)
