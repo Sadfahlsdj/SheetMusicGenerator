@@ -35,7 +35,8 @@ def pdf_to_mxl(q, l):
                 index = l.index(filename) # records index of current file so it can be recorded in txt file for future iterations to know what the start index is
             p = subprocess.Popen(['java', '-cp', '/path/to/audiveris/Audiveris-5.3.1/lib/*', 'Audiveris', '-batch',
                               '-output', '/path/to/mxls/', '-export',
-                              '--', '/path/to/pdfs/' + filename]) # runs audiveris with all the command line arguments
+                              '--', '/path/to/pdfs/' + filename])
+            # runs audiveris with all the command line arguments
             p.wait() # waits for last audiveris process in this thread to finish before starting a new one
 
             txt_path = '/path/to/project_folder/' + txt_file_name

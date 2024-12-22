@@ -1,5 +1,6 @@
 import music21
 import random
+import time
 
 with open('chord_trigrams.txt', 'r+') as f:
     trigrams_raw = f.read().split('}')
@@ -14,7 +15,6 @@ def parse_input(trigrams_raw):
         if trigrams_raw.index(t) > 0:
             parsed.pop(0)
             # after the first dict is parsed, subsequent ones will have a '' as the first element
-            # i could fix the underlying issue, OR
         try:
             key, values = tuple([parsed[0], parsed[1]]), parsed[2:]
             values_dict = {}
@@ -174,8 +174,9 @@ def generate_song(key, trigrams, length):
 
 def main():
     final_stream = generate_song('E-', trigrams, 30)
-    final_stream.show()
-    final_stream.write('midi', './midis/chord_bases.mid')
+    # final_stream.show()
+    filepath = f'./midis/{int(time.time())}.mid'
+    final_stream.write('midi', filepath)
 
 if __name__ == "__main__":
     main()

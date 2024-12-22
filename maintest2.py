@@ -9,9 +9,9 @@ from LinkGenerator import get_permlinks
 import os
 import threading
 
+
 def write_file(pdfname, response):
     with open(os.path.join('./pdfs', pdfname), 'wb') as pdf:  # ./ is for relative filepath
-        # os.set_blocking(pdf.fileno(), False) this doesn't work
         pdf.write(response.content)  # writing to pdf on my own machine
     print(f"finished writing {pdfname}")
 class Test:
@@ -64,7 +64,23 @@ class Test:
                     return False
 
             pdfurls = [l[0]['href'] for l in links]
+            print("printing pdfurls")
             print(pdfurls)
+
+            final_links = []
+            for p in pdfurls:
+                try:
+
+                    final_link = p
+
+                    final_links.append(final_link)
+                    index = start + final_links.index(final_link)
+                    with open("pdflinks.txt", 'a+', encoding='utf-8') as f:
+                        f.write(str(index) + ": " + final_link + "\n")
+                    print(f"wrote {final_link}")
+                except:
+                    print(f"something went wrong with the third step, the statement that p is none is: {p is None}")
+                    return False
 
             done = False
             tryCount = 0
@@ -90,7 +106,7 @@ class Test:
             pdfsoup = [BeautifulSoup(p.content, "html.parser") for p in pdfresults]
             pdfresponses = [p.find(id="wiki-body") for p in pdfsoup]
 
-            final_links = []
+            """final_links = []
             for p in pdfresponses:
                 try:
                     links = p.find_all('a', href=True)
@@ -104,7 +120,7 @@ class Test:
 
                 except:
                     print(f"something went wrong with the third step, the statement that p is none is: {p is None}")
-                    return False
+                    return False"""
 
             """try:
                 for final_link in final_links:
@@ -134,7 +150,7 @@ def main():
     warnings.filterwarnings("ignore") # LIVING ON A PRAYER
     proxies = get_proxies()
 
-    i = 9850
+    i = 0
     proxyi = 80
     proxy = proxies[proxyi].strip()
 

@@ -3,10 +3,13 @@ import random
 import pathlib
 
 # required for music21 to recognize my musescore download
-music21.environment.set('musescoreDirectPNGPath',
+# mac:
+"""music21.environment.set('musescoreDirectPNGPath',
                         pathlib.PosixPath('/Applications/MuseScore 4.app/Contents/MacOS/mscore'))
 music21.environment.set('musicxmlPath',
-                        pathlib.PosixPath('/Applications/MuseScore 4.app/Contents/MacOS/mscore'))
+                        pathlib.PosixPath('/Applications/MuseScore 4.app/Contents/MacOS/mscore'))"""
+
+
 
 with open('trigrams_saved.txt', 'r+') as f:
     trigrams_raw = f.read().split('}')
